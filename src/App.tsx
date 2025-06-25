@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Play, Music, Star, Headphones } from 'lucide-react'
+import { Play, Music, Star, Headphones, Info } from 'lucide-react'
 import { Button } from './components/ui/button'
 import { Card, CardContent } from './components/ui/card'
 import { Badge } from './components/ui/badge'
@@ -14,7 +14,7 @@ interface Song {
   bpm: number
   duration: string
   color: string
-  preview?: string
+  audioUrl?: string
 }
 
 const songs: Song[] = [
@@ -26,6 +26,7 @@ const songs: Song[] = [
     bpm: 120,
     duration: '3:17',
     color: 'from-pink-500 to-purple-600',
+    // audioUrl: '/audio/idol.mp3'
   },
   {
     id: 'monster',
@@ -35,6 +36,7 @@ const songs: Song[] = [
     bpm: 140,
     duration: '3:02',
     color: 'from-red-500 to-orange-600',
+    // audioUrl: '/audio/monster.mp3'
   },
   {
     id: 'racing',
@@ -44,6 +46,7 @@ const songs: Song[] = [
     bpm: 150,
     duration: '3:24',
     color: 'from-blue-500 to-cyan-600',
+    // audioUrl: '/audio/racing.mp3'
   },
   {
     id: 'usseewa',
@@ -53,6 +56,7 @@ const songs: Song[] = [
     bpm: 132,
     duration: '3:14',
     color: 'from-yellow-500 to-red-500',
+    // audioUrl: '/audio/usseewa.mp3'
   },
   {
     id: 'aishite',
@@ -62,12 +66,14 @@ const songs: Song[] = [
     bpm: 108,
     duration: '3:33',
     color: 'from-green-500 to-teal-600',
+    // audioUrl: '/audio/aishite.mp3'
   },
 ]
 
 function App() {
   const [selectedSong, setSelectedSong] = useState<Song | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const highScores: Record<string, number> = {}
 
   const startGame = (song: Song) => {
     setSelectedSong(song)
@@ -115,7 +121,23 @@ function App() {
           </div>
           <div className="flex items-center gap-2">
             <Star className="w-5 h-5 text-yellow-400" />
-            <span className="text-sm text-gray-300">Best Score: 0</span>
+            <span className="text-sm text-gray-300">Best Score: {Math.max(...Object.values(highScores), 0).toLocaleString()}</span>
+          </div>
+        </motion.div>
+
+        {/* Instructions */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="mb-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg"
+        >
+          <div className="flex items-start gap-3">
+            <Info className="w-5 h-5 text-blue-400 mt-1" />
+            <div className="text-sm text-gray-300">
+              <p className="mb-1"><strong>How to play:</strong> Use D-F-J-K keys to hit the notes as they reach the yellow zone.</p>
+              <p>Get <span className="text-yellow-400">Perfect</span> hits for maximum points! Miss 10 notes in a row and it's game over!</p>
+            </div>
           </div>
         </motion.div>
 
@@ -141,6 +163,13 @@ function App() {
                   <div className="absolute bottom-3 left-3">
                     <div className="text-white/80 text-sm">{song.duration}</div>
                   </div>
+                  {!song.audioUrl && (
+                    <div className="absolute top-3 left-3">
+                      <Badge variant="secondary" className="bg-yellow-500/50 text-white">
+                        No Audio
+                      </Badge>
+                    </div>
+                  )}
                 </div>
                 
                 <CardContent className="p-4">
@@ -153,13 +182,8 @@ function App() {
                     <div className="text-xs text-gray-500">
                       BPM: {song.bpm}
                     </div>
-                    <div className="flex items-center gap-1">
-                      {[...Array(3)].map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className={`w-3 h-3 ${i < 2 ? 'text-yellow-400 fill-current' : 'text-gray-600'}`} 
-                        />
-                      ))}
+                    <div className="text-xs text-gray-500">
+                      Best: {highScores[song.id]?.toLocaleString() || '0'}
                     </div>
                   </div>
                   
@@ -184,6 +208,7 @@ function App() {
           className="text-center mt-12 text-gray-500 text-sm"
         >
           <p>Built with ❤️ for Japanese music lovers</p>
+          <p className="mt-2 text-xs">Note: Audio files not included. Add your own MP3 files to /public/audio/</p>
         </motion.footer>
       </div>
     </div>
